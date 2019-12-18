@@ -96,6 +96,12 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 			place1 = 0;
 			place2 = 0;
 			place3 = 0;
+			holder = 6;
+			holder2 = 6;
+			holder3 = 6;
+			holder4 = 6;
+			holder5 = 6;
+			holder6 = 6;
 			if (ones == 3) {
 				place1 = getIndex(dice,1,0);
 				place2 = getIndex(dice,1,place1);
@@ -114,26 +120,42 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 					}else if(sixes == 1) {
 						holder5 = getIndex(dice,6,0);
 					}
-					int[] stuff = setMax(holder, holder2, holder3, holder4, holder5);
+
+					int[] stuff = setMax(place1, place2, place3, holder, holder2, holder3, holder4, holder5);
 					setBool(reroll, stuff[0] == 6, stuff[1] == 6, stuff[2] == 6, stuff[3] == 6, stuff[4] == 6);
 				}
 			} else if (twos == 3) {
+				place1 = getIndex(dice,2,0);
+				place2 = getIndex(dice,2,place1);
+				place3 = getIndex(dice,2,place2);
 				if ((ones == 2) || (threes == 2) || (fours == 2) || (fives == 2) || (sixes == 2)) {
 					setBool(reroll, false, false, false, false, false);
 				}
 			} else if (threes == 3) {
+				place1 = getIndex(dice,3,0);
+				place2 = getIndex(dice,3,place1);
+				place3 = getIndex(dice,3,place2);
 				if ((twos == 2) || (ones == 2) || (fours == 2) || (fives == 2) || (sixes == 2)) {
 					setBool(reroll, false, false, false, false, false);
 				}
 			} else if (fours == 3) {
+				place1 = getIndex(dice,4,0);
+				place2 = getIndex(dice,4,place1);
+				place3 = getIndex(dice,4,place2);
 				if ((twos == 2) || (threes == 2) || (ones == 2) || (fives == 2) || (sixes == 2)) {
 					setBool(reroll, false, false, false, false, false);
 				}
 			} else if (fives == 3) {
+				place1 = getIndex(dice,5,0);
+				place2 = getIndex(dice,5,place1);
+				place3 = getIndex(dice,5,place2);
 				if ((twos == 2) || (threes == 2) || (fours == 2) || (ones == 2) || (sixes == 2)) {
 					setBool(reroll, false, false, false, false, false);
 				}
 			} else if (sixes == 3) {
+				place1 = getIndex(dice,6,0);
+				place2 = getIndex(dice,6,place1);
+				place3 = getIndex(dice,6,place2);
 				if ((twos == 2) || (threes == 2) || (fours == 2) || (fives == 2) || (ones == 2)) {
 					setBool(reroll, false, false, false, false, false);
 				} else {
@@ -166,8 +188,8 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 		// unreachable
 		return -1;
 	}
-	private int[] setMax(int one2, int two2, int three2, int four2, int five2) {
-		int[] returnVal = {one2, two2, three2, four2, five2};
+	private int[] setMax(int one2, int two2, int three2, int four2, int five2, int six2, int seven2, int eight2) {
+		int[] returnVal = {one2, two2, three2, four2, five2, six2, seven2, eight2};
 		Arrays.sort(returnVal);
 		return returnVal;
 	}

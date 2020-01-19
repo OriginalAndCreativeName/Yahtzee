@@ -22,7 +22,6 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 	 * pretty much A-range, and I would be satisfied with that, but if we could get
 	 * higher, that would be rad.
 	 */
-
 	public void reroll(int[] dice, int rollNumber, PlayerRecord record, boolean[] reroll) {
 		int[] diceval = { 0, 0, 0, 0, 0 };
 		int ones = 0;
@@ -40,6 +39,8 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 		int place1 = 0;
 		int place2 = 0;
 		int place3 = 0;
+		
+		ArrayList<String> combos = new ArrayList<String>();
 
 		for (int i = 0; i < dice.length; i++) {
 			holder = dice[i];
@@ -57,12 +58,116 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 				sixes++;
 			}
 		}
+		boolean allUpper = true;
+		boolean allLower = true;
+		for(int i=0; i<record.availableCombinations().length; i++) {
+			combos.add(record.availableCombinations()[i].getClass().toString().substring(6));
+			if(!record.availableCombinations()[i].upperSection()) {
+				allUpper=false;
+			}else {
+				allLower=false;
+			}
+			
+		}
+		//System.out.println(record.availableCombinations()[0].getClass().toString().substring(6));
+		if(allUpper) {
+			setBool(reroll, true, true, true, true, true);
+			int values[] = {ones,twos,threes,fours,fives,sixes};
+			if(!combos.contains("OnesCombination")) {
+				values[0]=0;
+			}
+			if(!combos.contains("TwosCombination")) {
+				values[1]=0;
+			}
+			if(!combos.contains("ThreesCombination")) {
+				values[2]=0;
+			}
+			if(!combos.contains("FoursCombination")) {
+				values[3]=0;
+			}
+			if(!combos.contains("FivesCombination")) {
+				values[4]=0;
+			}
+			if(!combos.contains("SixesCombination")) {
+				values[5]=0;
+			}
+			int highest=0;
+			for(int i=0; i<5; i++) {
+				if(values[highest]<values[i]) {
+					highest=i;
+				}
+			}
+			for(int i=0; i<5; i++) {
+				if(dice[i]==highest+1) {
+					reroll[i]=false;
+				}
+			}			
 
-		if (Yahtzee(ones, twos, threes, fours, fives, sixes))
+		}/*
+		else if(combos.size()==1) {
+			if(combos.contains("YahtzeeCombination")) {
+				setBool(reroll, true, true, true, true, true);
+			}
+			if (combos.contains("OnesCombination")) {
+				setBool(reroll, true, true, true, true, true);
+
+				for(int i=0; i<5; i++) {
+					if(dice[i]==1) {
+						reroll[i]=false;
+					}
+				}
+			} else if (combos.contains("TwosCombination")) {
+				setBool(reroll, true, true, true, true, true);
+
+				for(int i=0; i<5; i++) {
+					if(dice[i]==2) {
+						reroll[i]=false;
+					}
+				}
+			} else if (combos.contains("ThreesCombination")&&combos.size()==1) {
+				setBool(reroll, true, true, true, true, true);
+
+				for(int i=0; i<5; i++) {
+					if(dice[i]==3) {
+						reroll[i]=false;
+					}
+				}
+			} else if (combos.contains("FoursCombination")&&combos.size()==1) {
+				setBool(reroll, true, true, true, true, true);
+
+				for(int i=0; i<5; i++) {
+					if(dice[i]==4) {
+						reroll[i]=false;
+					}
+				}
+			} else if (combos.contains("FivesCombination")&&combos.size()==1) {
+				setBool(reroll, true, true, true, true, true);
+
+				for(int i=0; i<5; i++) {
+					if(dice[i]==5) {
+						reroll[i]=false;
+					}
+				}
+			} else if (combos.contains("SixesCombination")&&combos.size()==1) {
+				setBool(reroll, true, true, true, true, true);
+
+				for(int i=0; i<5; i++) {
+					if(dice[i]==6) {
+						reroll[i]=false;
+					}
+				}
+			}
+			
+
+		}*/
+		else if (Yahtzee(ones, twos, threes, fours, fives, sixes)) {
+			if(combos.contains("YahtzeeCombination")) {
+				setBool(reroll, false, false, false, false, false);
+			}
+		}
+		else if (LargeStraight(ones, twos, threes, fours, fives, sixes)&& combos.contains("LargeStraightCombination"))
 			setBool(reroll, false, false, false, false, false);
-		else if (LargeStraight(ones, twos, threes, fours, fives, sixes))
-			setBool(reroll, false, false, false, false, false);
-		else if (SmallStraight(ones, twos, threes, fours, fives, sixes) != -1) {
+		else if (SmallStraight(ones, twos, threes, fours, fives, sixes) != -1 && combos.contains("SmallStraightCombination")) {
 			int val = SmallStraight(ones, twos, threes, fours, fives, sixes);
 			boolean[] recorder = { false, false, false, false, false };
 			if (val == 0) {
@@ -107,9 +212,9 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 			}
 
 			reroll = recorder;
-		} else if (FullHouse(dice)) {
+		} else if (FullHouse(dice)&& combos.contains("FullHouseCombination")) {
 			setBool(reroll, false, false, false, false, false);
-		} else if (FourOfAKind(ones, twos, threes, fours, fives, sixes)) {
+		} else if (FourOfAKind(ones, twos, threes, fours, fives, sixes)&& combos.contains("FourOfAKindCombination")) {
 			if (ones == 1) {
 				holder = 1;
 				if (isIn(dice, 1)) {
@@ -153,7 +258,7 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 			} else if (holder == 4) {
 				setBool(reroll, false, false, false, false, true);
 			}
-		} else if (ThreeOfAKind(ones, twos, threes, fours, fives, sixes)) {
+		} else if (ThreeOfAKind(ones, twos, threes, fours, fives, sixes)&& combos.contains("ThreeOfAKindCombination")) {
 			place1 = 0;
 			place2 = 0;
 			place3 = 0;
@@ -243,6 +348,50 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 				}
 			}
 		}
+		else if (Chance(dice)&& combos.contains("ChanceCombination")) {
+			setBool(reroll, false, false, false, false, false);
+		}
+		else if(!allLower) {
+			setBool(reroll, true, true, true, true, true);
+			int values[] = {ones,twos,threes,fours,fives,sixes};
+			if(!combos.contains("OnesCombination")) {
+				values[0]=0;
+			}
+			if(!combos.contains("TwosCombination")) {
+				values[1]=0;
+			}
+			if(!combos.contains("ThreesCombination")) {
+				values[2]=0;
+			}
+			if(!combos.contains("FoursCombination")) {
+				values[3]=0;
+			}
+			if(!combos.contains("FivesCombination")) {
+				values[4]=0;
+			}
+			if(!combos.contains("SixesCombination")) {
+				values[5]=0;
+			}
+			int highest=0;
+			for(int i=0; i<5; i++) {
+				if(values[highest]<values[i]) {
+					highest=i;
+				}
+			}
+			for(int i=0; i<5; i++) {
+				if(dice[i]==highest+1) {
+					reroll[i]=false;
+				}
+			}			
+		}
+		/*
+		else if(TwoOfAKind(ones, twos, threes, fours, fives, sixes)) {
+			
+			else {
+				setBool(reroll, true, true, true, true, true);
+			}
+
+		} */
 
 		/*
 		 * In this space, you guys should define the cases 1-6, and see if there are 2-3
@@ -250,9 +399,8 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 		 * If you find something you think is better, go with that.
 		 */
 
-		else if (Chance(dice)) {
-			setBool(reroll, false, false, false, false, false);
-		} else {
+
+		else {
 			setBool(reroll, true, true, true, true, true);
 		}
 	}
@@ -362,7 +510,12 @@ public class GamerStrategy2 extends YahtzeeComputerStrategy {
 		else
 			return false;
 	}
-
+	public boolean TwoOfAKind(int ones, int twos, int threes, int fours, int fives, int sixes) {
+		if ((ones == 2) || (twos == 2) || (threes == 2) || (fours == 2) || (fives == 2) || (sixes == 2))
+			return true;
+		else
+			return false;
+	}
 	public boolean Chance(int[] dice) {
 		int total = 0;
 		for (int i = 0; i < dice.length; i++) {

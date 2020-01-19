@@ -1,16 +1,28 @@
 import java.util.*;
 
-public class GamerStrategy extends YahtzeeComputerStrategy {
+public class GamerStrategy2 extends YahtzeeComputerStrategy {
 
 	private AbstractYahtzeeCombination[] availableCombinations;
 
-	@Override
 	public String playerName() {
-		// TODO Auto-generated method stub
 		return "Gamer";
 	}
 
-	@Override
+	/*
+	 * NOTES (What y'all should do): 1) Look into PlayerRecord, maybe see if you can
+	 * use the availableCombinations class to make the strategy not look for stuff
+	 * we've already found. 2) Fill in each case you guys think matters, I'll lay
+	 * each case out so that you know where it is. 3) So the priority list is
+	 * Yahtzee->Large Straight->Small Straight->Full House->Four of a Kind->Three of
+	 * a Kind->Single Numbers (6, 5, 4, 3, 2, 1)->Chance. 4) REMEMBER, if you get a
+	 * score greater than 63 in the upper layer, you get 35 bonus points. 5) I don't
+	 * think two of a kind is very important, because there is no scoring order for
+	 * it, but if you wanna check for single numbers if the amount is greater than
+	 * 2, I think that would be good. 6) If we could get to like 170, I think that's
+	 * pretty much A-range, and I would be satisfied with that, but if we could get
+	 * higher, that would be rad.
+	 */
+
 	public void reroll(int[] dice, int rollNumber, PlayerRecord record, boolean[] reroll) {
 		int[] diceval = { 0, 0, 0, 0, 0 };
 		int ones = 0;
@@ -50,8 +62,53 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 			setBool(reroll, false, false, false, false, false);
 		else if (LargeStraight(ones, twos, threes, fours, fives, sixes))
 			setBool(reroll, false, false, false, false, false);
-		else if (SmallStraight(ones, twos, threes, fours, fives, sixes)) {
+		else if (SmallStraight(ones, twos, threes, fours, fives, sixes) != -1) {
+			int val = SmallStraight(ones, twos, threes, fours, fives, sixes);
+			boolean[] recorder = { false, false, false, false, false };
+			if (val == 0) {
+				if (ones > 1)
+					recorder[getIndex(dice, 1, 0)] = true;
+				else if (twos > 1)
+					recorder[getIndex(dice, 2, 0)] = true;
+				else if (threes > 1)
+					recorder[getIndex(dice, 3, 0)] = true;
+				else if (fours > 1)
+					recorder[getIndex(dice, 4, 0)] = true;
+				else if (isIn(dice, 5))
+					recorder[getIndex(dice, 5, 0)] = true;
+				else if (isIn(dice, 6))
+					recorder[getIndex(dice, 6, 0)] = true;
+			} else if (val == 1) {
+				if (isIn(dice, 1))
+					recorder[getIndex(dice, 1, 0)] = true;
+				else if (twos > 1)
+					recorder[getIndex(dice, 2, 0)] = true;
+				else if (threes > 1)
+					recorder[getIndex(dice, 3, 0)] = true;
+				else if (fours > 1)
+					recorder[getIndex(dice, 4, 0)] = true;
+				else if (fives > 1)
+					recorder[getIndex(dice, 5, 0)] = true;
+				else if (isIn(dice, 6))
+					recorder[getIndex(dice, 6, 0)] = true;
+			} else if (val == 2) {
+				if (isIn(dice, 1))
+					recorder[getIndex(dice, 1, 0)] = true;
+				else if (isIn(dice, 2))
+					recorder[getIndex(dice, 2, 0)] = true;
+				else if (threes > 1)
+					recorder[getIndex(dice, 3, 0)] = true;
+				else if (fours > 1)
+					recorder[getIndex(dice, 4, 0)] = true;
+				else if (fives > 1)
+					recorder[getIndex(dice, 5, 0)] = true;
+				else if (sixes > 1)
+					recorder[getIndex(dice, 6, 0)] = true;
+			}
 
+			reroll = recorder;
+		} else if (FullHouse(dice)) {
+			setBool(reroll, false, false, false, false, false);
 		} else if (FourOfAKind(ones, twos, threes, fours, fives, sixes)) {
 			if (ones == 1) {
 				holder = 1;
@@ -183,14 +240,19 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 				reroll[place3] = false;
 				if ((twos == 2) || (threes == 2) || (fours == 2) || (fives == 2) || (ones == 2)) {
 					setBool(reroll, false, false, false, false, false);
-				} else {
-
 				}
 			}
-
 		}
-		// TODO Auto-generated method stub
-		else {
+
+		/*
+		 * In this space, you guys should define the cases 1-6, and see if there are 2-3
+		 * of one number. Then, you should make it choose the corresponding combination.
+		 * If you find something you think is better, go with that.
+		 */
+
+		else if (Chance(dice)) {
+			setBool(reroll, false, false, false, false, false);
+		} else {
 			setBool(reroll, true, true, true, true, true);
 		}
 	}
@@ -230,9 +292,7 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 		reroll[4] = e;
 	}
 
-	@Override
 	public int chooseCombination(int[] dice, PlayerRecord record) {
-		// TODO Auto-generated method stub
 		availableCombinations = record.availableCombinations();
 		int maxScore = 0;
 		int indexOfMaxScore = -1;
@@ -269,12 +329,23 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 			return false;
 	}
 
-	public boolean SmallStraight(int ones, int twos, int threes, int fours, int fives, int sixes) {
-		if (((ones == 1) && (twos == 1) && (threes == 1) && (fours == 1))
-				|| ((twos == 1) && (threes == 1) && (fours == 1) && (fives == 1))
-				|| ((threes == 1) && (fours == 1) && (fives == 1) && (sixes == 1)))
-			return true;
+	public int SmallStraight(int ones, int twos, int threes, int fours, int fives, int sixes) {
+		if ((ones == 1) && (twos == 1) && (threes == 1) && (fours == 1))
+			return 0;
+		else if ((twos == 1) && (threes == 1) && (fours == 1) && (fives == 1))
+			return 1;
+		else if ((threes == 1) && (fours == 1) && (fives == 1) && (sixes == 1))
+			return 2;
 		else
+			return -1;
+	}
+
+	public boolean FullHouse(int[] dice) {
+		if (dice[0] == dice[1] && dice[2] == dice[3] && dice[3] == dice[4] && (dice[1] != dice[2])) {
+			return true;
+		} else if (dice[0] == dice[1] && dice[1] == dice[2] && dice[3] == dice[4] && (dice[2] != dice[3])) {
+			return true;
+		} else
 			return false;
 	}
 
@@ -290,6 +361,16 @@ public class GamerStrategy extends YahtzeeComputerStrategy {
 			return true;
 		else
 			return false;
+	}
+
+	public boolean Chance(int[] dice) {
+		int total = 0;
+		for (int i = 0; i < dice.length; i++) {
+			total += dice[i];
+		}
+		if (total > 30)
+			return true;
+		return false;
 	}
 
 	@Override
